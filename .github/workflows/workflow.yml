@@ -1,0 +1,26 @@
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+name: Publish Image
+
+jobs:
+  publish:
+    name: Publish Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          git fetch --prune --unshallow --tags
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: publish image
+        run: VERSION=`git describe --tags` make image publish
