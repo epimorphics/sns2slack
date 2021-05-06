@@ -3,11 +3,11 @@ on:
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
-name: Publish Image
+name: Upload Layer
 
 jobs:
   publish:
-    name: Publish Image
+    name: Upload Layer
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,8 +19,8 @@ jobs:
           aws-access-key-id: ${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-      - name: publish image
-        run: VERSION=`git describe --tags` make image publish
+#     - name: Login to Amazon ECR
+#       id: login-ecr
+#       uses: aws-actions/amazon-ecr-login@v1
+      - name: Upload Layer
+        run: VERSION=`git describe --tags` make release
