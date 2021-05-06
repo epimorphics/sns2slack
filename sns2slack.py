@@ -82,7 +82,7 @@ def procRec(r):
     slack = {}
     slack['author_name'] = r['Sns']['MessageId']
     slack['title'] = r['Sns']['Subject']
-    slack['text'] = msg.replace('\\n',r'\n')
+    slack['text'] = msg.replace('\\n','\n')
     return slack
 
 
