@@ -29,14 +29,12 @@ ${LIBS}: requirements.txt
 	@/usr/bin/python${PYTHON_VERSION} -m pip install -t ${LIBS} -r requirements.txt --upgrade
 
 release: ${LAMBDA}
-	@aws s3 cp ${LAMBDA} s3://epi-repository/release/lambda/${NAME}/python-${PYTHON_VERSION}/${LAMBDA}
+	@aws s3 cp ${LAMBDA} s3://epi-repository/release/lambda/${NAME}/python${PYTHON_VERSION}/${LAMBDA}
 
 upload: ${LAYER}
-	@aws s3 cp ${$LAYER} s3://epi-repository/release/lambda-layer/${NAME}/python-${PYTHON_VERSION}/${$LAYER}
+	@aws s3 cp ${$LAYER} s3://epi-repository/release/lambda-layer/${NAME}/python${PYTHON_VERSION}/${$LAYER}
 
 clean:
 	@rm -rf ${LIBS} *.zip
-
-
 
 .PHONY:	clean image publish release upload
