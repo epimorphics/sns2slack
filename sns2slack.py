@@ -92,10 +92,12 @@ def handler(event, context):
   WEBHOOK  = os.getenv('WEBHOOK')
 
   if CHANNEL is None:
-    CHANNEL = '#ea-alerts'
+    print("Environment Variable CHANNEL not defined.")
+    return;
 
   if USERNAME is None:
-    USERNAME = 'EA-Hydro'
+    print("Environment Variable USERNAME not defined.")
+    return;
 
   if WEBHOOK is None:
     print("Environment Variable WEBHOOK not defined.")

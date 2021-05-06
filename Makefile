@@ -3,9 +3,11 @@ PYTHON_VERSION=3.8
 VERSION?=SNAPSHOT
 REPO?=293385631482.dkr.ecr.eu-west-1.amazonaws.com/epimorphics/${NAME}
 LIBS=libs
-ZIP=layer-${VERSION}.zip
+LAYER=layer-${VERSION}.zip
+LAMBDA=${NAME}-${VERSION}.zip
+SCRIPT=${NAME}.py
 
-all: zip image
+all: lambda layer image
 
 image:
 	@docker build -t ${REPO}:${VERSION} .
@@ -13,16 +15,28 @@ image:
 publish:
 	@docker push ${REPO}:${VERSION}
 
-zip: ${ZIP}
+lambda: ${LAMBDA}
 
-${ZIP}: requirements.txt
+layer: ${$LAYER}
+
+${LAMBDA}: ${SCRIPT} ${LIBS}
+	@zip -r ${LAMBDA} ${SCRIPT} ./${LIBS}
+
+${LAYER}: ${LIBS}
+	@cd ${LIBS}; zip -r ../${LAYER} .
+
+${LIBS}: requirements.txt
 	@/usr/bin/python${PYTHON_VERSION} -m pip install -t ${LIBS} -r requirements.txt --upgrade
-	@cd ${LIBS}; zip -r ../${ZIP} .
 
-release: zip
-	@aws s3 cp ${ZIP} s3://epi-repository/release/lambda-layer/${NAME}/python-${PYTHON_VERSION}/${ZIP}
+release: ${LAMBDA}
+	@aws s3 cp ${LAMBDA} s3://epi-repository/release/lambda/${NAME}/python-${PYTHON_VERSION}/${LAMBDA}
+
+upload: ${LAYER}
+	@aws s3 cp ${$LAYER} s3://epi-repository/release/lambda-layer/${NAME}/python-${PYTHON_VERSION}/${$LAYER}
 
 clean:
-	@rm -rf ${LIBS} ${ZIP}
+	@rm -rf ${LIBS} *.zip
 
-.PHONY:	clean image publish release zip 
+
+
+.PHONY:	clean image publish release upload
