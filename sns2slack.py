@@ -5,83 +5,114 @@ import urllib
 #from botocore.vendored import requests
 import requests
 
-def alertManager(id, am):
+def alertManager(id, subject, am):
 
-    slack = {}
-    icon = ':exclamation:'
-    slack['color'] = '#44a'
+  slack = {}
+  icon = ':exclamation:'
+  slack['color'] = '#44a'
+  status = am.pop('status','unknown')
 
-    labels = {}
+  labels = {}
 
-    for labelKey in ['commonAnnotations', 'commonLabels', 'groupLabels']:
-      if labelKey in am.keys():
-        labels.update(am[labelKey])
+  for labelKey in ['commonAnnotations', 'commonLabels', 'groupLabels']:
+    if labelKey in am.keys():
+      labels.update(am[labelKey])
 
-    if 'alerts' in am.keys():
-      for alert in am['alerts']:
-        slack['author_link'] = alert.pop('generatorURL', None)
-        if 'labels' in alert.keys():
-          labels.update(alert['labels'])
+  if 'alerts' in am.keys():
+    for alert in am['alerts']:
+      slack['author_link'] = alert.pop('generatorURL', None)
+      if 'labels' in alert.keys():
+        labels.update(alert['labels'])
 
-    if am['status'] == 'resolved':
-      icon = ':heavy_check_mark:'
-      slack['color'] = 'good'
-      if 'alertname' in labels.keys():
-        slack['author_name'] = '{}: {}'.format(am['status'].title(), labels['alertname'])
+  if status == 'resolved':
+    icon = ':heavy_check_mark:'
+    slack['color'] = 'good'
+    if 'alertname' in labels.keys():
+      slack['author_name'] = '{}: {}'.format(status.title(), labels['alertname'])
 
-    elif 'severity' in labels.keys():
+  elif 'severity' in labels.keys():
 
-      if 'alertname' in labels.keys() and labels['alertname'] == "Watchdog":
-        slack['severity'] = 'drop'
-      else:
-        slack['severity'] = labels['severity']
+    if 'alertname' in labels.keys() and labels['alertname'] == "Watchdog":
+      slack['severity'] = 'drop'
+    else:
+      slack['severity'] = labels['severity']
 
-      slack['author_name'] = '{}: {} ({})'.format(labels['severity'].title(), labels['alertname'], am['status'].title())
+    slack['author_name'] = '{}: {} ({})'.format(labels['severity'].title(), labels['alertname'], status.title())
 
-      if labels['severity'] == 'critical':
-        icon = ':boom:'
-        slack['color'] = 'danger'
-      elif labels['severity'] == 'warning':
-        icon = ':warning:'
-        slack['color'] = 'warning'
+    if labels['severity'] == 'critical':
+      icon = ':boom:'
+      slack['color'] = 'danger'
+    elif labels['severity'] == 'warning':
+      icon = ':warning:'
+      slack['color'] = 'warning'
 
-    slack['title_link'] = labels.pop('runbook_url', None)
-    if 'message' in labels.keys():
-        slack['title'] = labels.pop('message')
-    elif 'summary' in labels.keys():
-        slack['title'] = labels.pop('summary')
-    
-    externalURL = os.getenv('EXTERNAL_URL')
-    if externalURL is None:
-      externalURL = am['externalURL']
+  slack['title_link'] = labels.pop('runbook_url', None)
+  if subject:
+    slack['title'] = subject
+  elif 'message' in labels.keys():
+    slack['title'] = labels.pop('message')
+  elif 'summary' in labels.keys():
+    slack['title'] = labels.pop('summary')
 
-    slack['text'] = '<{}/#/alerts?silenced=false&inhibited=false&active=true&filter={} |{} Alertmanager: {}>'.format(externalURL, urllib.parse.quote(am['groupKey'][3:].replace("\\", "")), icon, id )
+  if os.getenv('EXTERNAL_URL'):
+    slack['text'] = '<{}/#/alerts?silenced=false&inhibited=false&active=true&filter={} |{} Alertmanager: {}>'.format(os.getenv('EXTERNAL_URL'), urllib.parse.quote(am['groupKey'][3:].replace("\\", "")), icon, id )
+  elif 'external' in am.keys():
+    slack['text'] = '<{}/#/alerts?silenced=false&inhibited=false&active=true&filter={} |{} Alertmanager: {}>'.format(am['externalURL'], urllib.parse.quote(am['groupKey'][3:].replace("\\", "")), icon, id )
+  else:
+    slack['text'] = ''
 
+  if len(labels):
     if 'summary' in labels.keys():
       slack['text'] = "{}\n{}".format(slack['text'], labels.pop('summary'))
     if 'description' in labels.keys():
       slack['text'] = "{}\n{}".format(slack['text'], labels.pop('description'))
+    slack['text'] = "{}{}".format(slack['text'], json.dumps(labels, sort_keys = False, indent = 2)[1:-1].replace('"', '').replace(',$', ''))
+  else:
+    slack['text'] = "{}{}".format(slack['text'], json.dumps(am, sort_keys = False, indent = 2))
 
-    if len(labels):
-      slack['text'] = "{}{}".format(slack['text'], json.dumps(labels, sort_keys = False, indent = 2)[1:-1].replace('"', '').replace(',$', ''))
+  slack['fallback'] = '{}: {}'.format(status.title(), labels.pop('alertname',slack['title']))
 
-    slack['fallback'] = '{}: {}'.format(am['status'].title(), labels['alertname'])
+  return slack
 
-    return slack
+
+def cloudwatch(id, subject, cw):
+
+  slack = {}
+  icon = ':exclamation:'
+  slack['color'] = '#44a'
+  status = cw.pop('NewStateValue','unknown')
+
+  if status == 'ALARM':
+    icon = ':boom:'
+    slack['color'] = 'danger'
+
+  slack['author_name'] = '{}: {}'.format(status.title(), cw.pop('AlarmName','Cloud Watch Alarm'))
+  slack['title'] = cw.pop('AlarmDescription', None)
+  slack['text'] = cw.pop('NewStateReason', None)
+
+  slack['fallback'] = '{}: {}'.format(status.title(), slack['title'])
+
+  return slack
 
 
 def procRec(r):
 
+  id = r['Sns']
+  subject = r['Sns']['Subject']
   msg = r['Sns']['Message']
 
   try:
-    am = json.loads(msg) # if message is json assume it came from AlertManager
-    return alertManager(r['Sns']['MessageId'], am)
+    j = json.loads(msg)
+    if 'AlarmArn' in j.keys():
+      return cloudwatch(id, subject, j)
+    else:
+    # if message is json and has no AlarmArm assume it came from AlertManager
+      return alertManager(id, subject, j)
 
   except ValueError as e:
     slack = {}
-    slack['author_name'] = r['Sns']['MessageId']
-    slack['title'] = r['Sns']['Subject']
+    slack['author_name'] = id
+    slack['title'] = subject
     slack['text'] = msg.replace('\\n','\n')
     return slack
 
@@ -102,7 +133,7 @@ def handler(event, context):
   if WEBHOOK is None:
     print("Environment Variable WEBHOOK not defined.")
     return;
-  
+
   print('event: %s' % json.dumps(event))
 
   data = {
