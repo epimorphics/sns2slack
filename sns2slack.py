@@ -56,10 +56,10 @@ def alertManager(id, subject, am):
 
   if os.getenv('EXTERNAL_URL'):
     slack['text'] = '<{}/#/alerts?silenced=false&inhibited=false&active=true&filter={} |{} Alertmanager: {}>'.format(os.getenv('EXTERNAL_URL'), urllib.parse.quote(am['groupKey'][3:].replace("\\", "")), icon, id )
-  elif 'external' in am.keys():
+  elif 'externalURL' in am.keys():
     slack['text'] = '<{}/#/alerts?silenced=false&inhibited=false&active=true&filter={} |{} Alertmanager: {}>'.format(am['externalURL'], urllib.parse.quote(am['groupKey'][3:].replace("\\", "")), icon, id )
   else:
-    slack['text'] = ''
+    slack['text'] = '{} Alertmanager: {}'.format(icon, id)
 
   if len(labels):
     if 'summary' in labels.keys():
@@ -86,9 +86,9 @@ def cloudwatch(id, subject, cw):
     icon = ':boom:'
     slack['color'] = 'danger'
 
-  slack['author_name'] = '{}: {}'.format(status.title(), cw.pop('AlarmName','Cloud Watch Alarm'))
+  slack['author_name'] = '{}: {}'.format(status.title(), cw.pop('AlarmName', 'Cloud Watch Alarm'))
   slack['title'] = cw.pop('AlarmDescription', None)
-  slack['text'] = cw.pop('NewStateReason', None)
+  slack['text'] = '{}\nAlarnArn: {}'.format(cw.pop('NewStateReason', None),cw.pop('AlarmArn', None))
 
   slack['fallback'] = '{}: {}'.format(status.title(), slack['title'])
 
@@ -97,7 +97,7 @@ def cloudwatch(id, subject, cw):
 
 def procRec(r):
 
-  id = r['Sns']
+  id = r['Sns']['MessageId']
   subject = r['Sns']['Subject']
   msg = r['Sns']['Message']
 
