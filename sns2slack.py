@@ -1,9 +1,14 @@
+#! /usr/bin/python3
+
 import json
 import os
+import sys
 import urllib
 
 #from botocore.vendored import requests
 import requests
+
+disable_post = False
 
 def alertManager(id, subject, am):
 
@@ -53,6 +58,8 @@ def alertManager(id, subject, am):
     slack['title'] = labels.pop('message')
   elif 'summary' in labels.keys():
     slack['title'] = labels.pop('summary')
+  else:
+    slack['title'] = None
 
   if os.getenv('EXTERNAL_URL'):
     slack['text'] = '<{}/#/alerts?silenced=false&inhibited=false&active=true&filter={} |{} Alertmanager: {}>'.format(os.getenv('EXTERNAL_URL'), urllib.parse.quote(am['groupKey'][3:].replace("\\", "")), icon, id )
@@ -158,5 +165,13 @@ def handler(event, context):
 
   if len(data['attachments']):
     print('sent: %s' % json.dumps(data))
-    r = requests.post(WEBHOOK, json = data)
-    print('result: %d' % r.status_code)
+    if not disable_post:
+      r = requests.post(WEBHOOK, json = data)
+      print('result: %d' % r.status_code)
+
+
+if __name__ == "__main__":
+  disable_post = True
+  d = json.load(sys.stdin)
+# print(json.dumps(d))
+  handler(d, None)

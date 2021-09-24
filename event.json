@@ -1,0 +1,22 @@
+{
+    "Records": [
+        {
+            "EventSource": "aws:sns",
+            "EventVersion": "1.0",
+            "EventSubscriptionArn": "arn:aws:sns:eu-west-1:853478862498:hydro-slack-alert:938098f7-fd2e-4f03-98bc-1e6445f0d6e9",
+            "Sns": {
+                "Type": "Notification",
+                "MessageId": "54b3780d-7bc6-5bd4-a825-21caf5fc8d61",
+                "TopicArn": "arn:aws:sns:eu-west-1:853478862498:hydro-slack-alert",
+                "Subject": null,
+                "Message": "{\"receiver\":\"sns-slack-forwarder\",\"status\":\"firing\",\"alerts\":[{\"status\":\"firing\",\"labels\":{\"alertname\":\"KubeJobCompletion\",\"container\":\"kube-state-metrics\",\"endpoint\":\"http\",\"instance\":\"192.168.71.160:8080\",\"job\":\"kube-state-metrics\",\"job_name\":\"podium-backup-1632373200\",\"namespace\":\"testing\",\"pod\":\"kube-prometheus-stack-kube-state-metrics-6d46786f9d-mwc27\",\"prometheus\":\"monitoring/kube-prometheus-stack-prometheus\",\"service\":\"kube-prometheus-stack-kube-state-metrics\",\"severity\":\"warning\"},\"annotations\":{\"description\":\"Job testing/podium-backup-1632373200 is taking more than 12 hours to complete.\",\"runbook_url\":\"https://github.com/kubernetes-monitoring/kubernetes-mixin/tree/master/runbook.md#alert-name-kubejobcompletion\",\"summary\":\"Job did not complete in time\"},\"startsAt\":\"2021-09-23T17:00:27.339Z\",\"endsAt\":\"0001-01-01T00:00:00Z\",\"generatorURL\":\"http://prometheus-ea.epimorphics.net/graph?g0.expr=kube_job_spec_completions%7Bjob%3D%22kube-state-metrics%22%2Cnamespace%3D~%22.%2A%22%7D+-+kube_job_status_succeeded%7Bjob%3D%22kube-state-metrics%22%2Cnamespace%3D~%22.%2A%22%7D+%3E+0\\u0026g0.tab=1\",\"fingerprint\":\"177dc7e962f76257\"},{\"status\":\"firing\",\"labels\":{\"alertname\":\"KubeJobFailed\",\"condition\":\"true\",\"container\":\"kube-state-metrics\",\"endpoint\":\"http\",\"instance\":\"192.168.71.160:8080\",\"job\":\"kube-state-metrics\",\"job_name\":\"podium-backup-1632373200\",\"namespace\":\"testing\",\"pod\":\"kube-prometheus-stack-kube-state-metrics-6d46786f9d-mwc27\",\"prometheus\":\"monitoring/kube-prometheus-stack-prometheus\",\"service\":\"kube-prometheus-stack-kube-state-metrics\",\"severity\":\"warning\"},\"annotations\":{\"description\":\"Job testing/podium-backup-1632373200 failed to complete. Removing failed job after investigation should clear this alert.\",\"runbook_url\":\"https://github.com/kubernetes-monitoring/kubernetes-mixin/tree/master/runbook.md#alert-name-kubejobfailed\",\"summary\":\"Job failed to complete.\"},\"startsAt\":\"2021-09-23T05:15:57.339Z\",\"endsAt\":\"0001-01-01T00:00:00Z\",\"generatorURL\":\"http://prometheus-ea.epimorphics.net/graph?g0.expr=kube_job_failed%7Bjob%3D%22kube-state-metrics%22%2Cnamespace%3D~%22.%2A%22%7D+%3E+0\\u0026g0.tab=1\",\"fingerprint\":\"552900a72a2a9053\"}],\"groupLabels\":{},\"commonLabels\":{\"container\":\"kube-state-metrics\",\"endpoint\":\"http\",\"instance\":\"192.168.71.160:8080\",\"job\":\"kube-state-metrics\",\"job_name\":\"podium-backup-1632373200\",\"namespace\":\"testing\",\"pod\":\"kube-prometheus-stack-kube-state-metrics-6d46786f9d-mwc27\",\"prometheus\":\"monitoring/kube-prometheus-stack-prometheus\",\"service\":\"kube-prometheus-stack-kube-state-metrics\",\"severity\":\"warning\"},\"commonAnnotations\":{},\"externalURL\":\"http://alerts-ea.epimorphics.net\",\"version\":\"4\",\"groupKey\":\"{}/{namespace=~\\\"^(?:testing)$\\\"}:{}\"}\n",
+                "Timestamp": "2021-09-24T08:27:38.295Z",
+                "SignatureVersion": "1",
+                "Signature": "iZElzbv+UsJBjLTWoyKxDCjPLMZD8z1QXvjkVo5xMrW4RUa4v8kZ7IigvSd0QdedfLYzeVq5ZAhiPX3o14gC6N2gSQIpV1rP/EK/CHPisxiGFLXuJopDPST4Drnb03/mHn3hHVKVeCFI5U3v4dnUasMDDiaOcUHUnowzK2CAg4Sk+x5zmmb3U44AKMhP8RzeZX+Y+02poIWFAdkhUgyHR++26bwCYrNmny4nhf2uLi7N/mEQOMrQiNGMXoieWgG8yuK+fQtKatZHitgkJlgQ/gixJSE7a8OF7CTK9Zu0BA6epoLrKeLjcMXYOP7y6eu7YbM/+FDTyu7xyq4v1d1Utw==",
+                "SigningCertUrl": "https://sns.eu-west-1.amazonaws.com/SimpleNotificationService-010a507c1833636cd94bdb98bd93083a.pem",
+                "UnsubscribeUrl": "https://sns.eu-west-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:eu-west-1:853478862498:hydro-slack-alert:938098f7-fd2e-4f03-98bc-1e6445f0d6e9",
+                "MessageAttributes": {}
+            }
+        }
+    ]
+}
