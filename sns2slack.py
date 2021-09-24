@@ -87,6 +87,7 @@ def cloudwatch(id, subject, cw):
   slack = {}
   icon = ':exclamation:'
   slack['color'] = '#44a'
+  slack['title'] = subject
   status = cw.pop('NewStateValue','unknown')
 
   if status == 'ALARM':
@@ -141,7 +142,7 @@ def handler(event, context):
     print("Environment Variable WEBHOOK not defined.")
     return;
 
-  print('event: %s' % json.dumps(event))
+  print('Event: %s' % json.dumps(event))
 
   data = {
     'channel': CHANNEL,
@@ -164,7 +165,7 @@ def handler(event, context):
     data['attachments'].append(slack)
 
   if len(data['attachments']):
-    print('sent: %s' % json.dumps(data))
+    print('Sent: %s' % json.dumps(data))
     if not disable_post:
       r = requests.post(WEBHOOK, json = data)
       print('result: %d' % r.status_code)
