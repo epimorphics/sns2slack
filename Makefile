@@ -1,5 +1,5 @@
-NAME=sns2slack
-PYTHON_VERSION=3.8
+NAME?=sns2slack
+PYTHON_VERSION=3.10
 VERSION?=SNAPSHOT
 REPO?=293385631482.dkr.ecr.eu-west-1.amazonaws.com/epimorphics/${NAME}
 LIBS=libs
@@ -10,7 +10,7 @@ SCRIPT=${NAME}.py
 all: lambda layer image
 
 image:
-	@docker build -t ${REPO}:${VERSION} .
+	@docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t ${REPO}:${VERSION} .
 
 publish:
 	@docker push ${REPO}:${VERSION}
@@ -26,7 +26,7 @@ ${LAYER}: ${LIBS}
 	@cd ${LIBS}; zip -r ../${LAYER} .
 
 ${LIBS}: requirements.txt
-	@/usr/bin/python${PYTHON_VERSION} -m pip install -t ${LIBS} -r requirements.txt --upgrade
+	@/usr/bin/pip3 install -t ${LIBS} -r requirements.txt --upgrade
 
 release: ${LAMBDA}
 	@aws s3 cp ${LAMBDA} s3://epi-repository/release/lambda/${NAME}/python${PYTHON_VERSION}/${LAMBDA}
