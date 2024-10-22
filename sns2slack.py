@@ -82,7 +82,7 @@ def alertManager(id, subject, am):
   return slack
 
 
-def cloudwatch(id, subject, cw):
+def cloudwatch(topic, id, subject, cw):
 
   slack = {}
   icon = ':exclamation:'
@@ -96,7 +96,7 @@ def cloudwatch(id, subject, cw):
 
   slack['author_name'] = '{}: {}'.format(status.title(), cw.pop('AlarmName', 'Cloud Watch Alarm'))
   slack['title'] = cw.pop('AlarmDescription', None)
-  slack['text'] = '{}\nAlarnArn: {}'.format(cw.pop('NewStateReason', None),cw.pop('AlarmArn', None))
+  slack['text'] = '{}: {}\n{}\nAlarnArn: {}'.format(topic, id, cw.pop('NewStateReason', None), cw.pop('AlarmArn', None))
 
   slack['fallback'] = '{}: {}'.format(status.title(), slack['title'])
 
@@ -106,20 +106,21 @@ def cloudwatch(id, subject, cw):
 def procRec(r):
 
   id = r['Sns']['MessageId']
+  topic = r['Sns']['TopicArn']
   subject = r['Sns']['Subject']
   msg = r['Sns']['Message']
 
   try:
     j = json.loads(msg)
     if 'AlarmArn' in j.keys():
-      return cloudwatch(id, subject, j)
+      return cloudwatch(topic, id, subject, j)
     else:
     # if message is json and has no AlarmArm assume it came from AlertManager
       return alertManager(id, subject, j)
 
   except ValueError as e:
     slack = {}
-    slack['author_name'] = id
+    slack['author_name'] = '{}: {}'.format(topic, id)
     slack['title'] = subject
     slack['text'] = msg.replace('\\n','\n')
     return slack
