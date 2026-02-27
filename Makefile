@@ -1,5 +1,5 @@
 NAME?=sns2slack
-PYTHON_VERSION=3.10
+PYTHON_VERSION=3.13
 VERSION?=SNAPSHOT
 REPO?=293385631482.dkr.ecr.eu-west-1.amazonaws.com/epimorphics/${NAME}
 LIBS=libs
