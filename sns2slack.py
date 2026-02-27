@@ -120,7 +120,6 @@ def procRec(r):
 
   except ValueError as e:
     slack = {}
-    slack['author_name'] = '{}: {}'.format(topic, id)
     slack['title'] = subject
     slack['text'] = msg.replace('\\n','\n')
     return slack
