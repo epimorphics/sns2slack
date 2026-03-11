@@ -96,7 +96,8 @@ def cloudwatch(topic, id, subject, cw):
 
   slack['author_name'] = '{}: {}'.format(status.title(), cw.pop('AlarmName', 'Cloud Watch Alarm'))
   slack['title'] = cw.pop('AlarmDescription', None)
-  slack['text'] = '{}: {}\n{}\nAlarnArn: {}'.format(topic, id, cw.pop('NewStateReason', None), cw.pop('AlarmArn', None))
+  slack['mrkdwn_in'] = '["text"]'
+  slack['text'] = 'AlarmArn: `{}`\nCause: `{}`\nTopic: `{}`\nMessage id: `{}`'.format(cw.pop('AlarmArn', None), cw.pop('NewStateReason', None), topic, id, )
 
   slack['fallback'] = '{}: {}'.format(status.title(), slack['title'])
 
